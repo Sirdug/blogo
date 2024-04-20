@@ -1,0 +1,76 @@
+{{define "title"}}{{.Article.Title}} | {{.Blogo.Title}}{{end}}
+
+{{define "extraHead"}}
+<!--SEO and Sharing metas-->
+<meta property="og:type" content="article" />
+<meta name="description" content="{{.Article.Summary}}">
+<meta property="og:description" content="{{.Article.Summary}}" />
+<meta name="keywords" content="{{.Article.Tags}}">
+<meta property="og:title" content="{{.Article.Title}}" />
+<meta property="og:url" content="{{.Blogo.Url}}/p/{{.Article.Slug}}" />
+
+<!--Avoid indexing drafts-->
+{{if .Article.Draft}}
+    <meta name="robots" content="noindex">
+{{end}}
+
+<!--Add image as banner for social sharing-->
+{{if ne .Article.Image ""}}
+    <meta property="og:image" content="{{.Article.Image}}" />
+    <meta property="thumbnail" content="{{.Article.Image}}">
+    <meta name="twitter:image" content="{{.Article.Image}}">
+{{else}}
+    <meta property="og:image" content="{{.Blogo.Url}}/static/assets/logo.png" />
+    <meta property="thumbnail" content="{{.Blogo.Url}}/static/assets/logo.png">
+    <meta name="twitter:image" content="{{.Blogo.Url}}/static/assets/logo.png">
+{{end}}
+
+<!--Add canonical url-->
+<link rel="canonical" href="{{.Blogo.Url}}/p/{{.Article.Slug}}" />
+
+<!--Add CSS styles-->
+<link rel="stylesheet" type="text/css" href="/static/css/markdown.css">
+{{end}}
+
+{{define "main"}}
+
+<section class="px-2 pt-2 pb-8 text-center">
+    {{if ne .Article.Image ""}}
+    <div class="px-2 my-4 w-full h-60 md:h-72">
+        <img src="{{.Article.Image}}" class="object-cover object-center w-full h-full opacity-90 dark:opacity-75" alt="">
+    </div>
+    {{end}}
+
+    <h1 class="pt-4 mb-2 text-4xl font-bold text-gray-900 text-opacity-90 capitalize dark:text-gray-300 md:text-5xl">{{.Article.Title}}</h1>
+    {{range .Article.Tags}}
+        <span class="inline-block mb-2 text-xs text-center text-black dark:text-zinc-400">
+            <a class="no-underline hover:text-blue-900 dark:hover:text-blue-300" href="/t/{{.}}">#{{.}}</a>
+        </span>
+    {{end}}
+    <div class="mt-3 mb-3 opacity-60">
+        {{if .Article.Draft}}
+            <div class="pb-2 text-center">
+                <span class="font-bold badge badge-warning badge-lg">DRAFT</span>
+            </div>
+        {{end}}
+        {{if ne .Article.Author ""}}
+        <div class="mb-0 text-xs text-black drop-shadow-sm dark:text-slate-100">~{{readTime .Article.Md}} min read</div>
+            <div class="mb-0 text-sm text-black drop-shadow-sm dark:text-slate-100">by {{.Article.Author}}, {{dateString .Article.Date}}</div>
+        {{else}}
+            <div class="mt-2 mb-0 text-sm font-bold text-black dark:text-slate-100">{{dateString .Article.Date}}</div>
+        {{end}}
+        {{if and (ne .Article.NostrUrl "") (ne .Article.NostrUrl "0") (ne .Article.NostrUrl "false")}}
+            <div class="pb-2 text-center">
+                <a class="text-sm font-bold text-blue-900 underline dark:text-blue-300" href="{{.Article.NostrUrl}}">Read on Nostr</a>
+            </div>
+        {{end}}
+    </div>  
+</section>
+
+<section class="px-6 mt-1 max-w-full">
+    <div id="markdown" class="pb-12 prose prose-xl md:prose-2xl prose-blue prose-code:text-base prose-hr:border-zinc-600 prose-hr:dark:border-zinc-400 prose-blockquote:border-blue-600 prose-blockquote:dark:border-blue-900 dark:prose-invert font-garamond">
+        {{html .Article.Html}}
+    </div>
+</section>
+
+{{end}}
